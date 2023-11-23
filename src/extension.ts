@@ -16,12 +16,13 @@ export function activate(context: vscode.ExtensionContext) {
         if (selectedOption) {
             let command = '';
             switch (selectedOption) {
-                case 'Assemble':
-                    const environmentAssemble = await getEnvironment('Enter the environment for assembling:');
-                    if (environmentAssemble) {
-                        command = `cd ./android && ./gradlew assemble${environmentAssemble} && cd ..`;
-                    }
-                    break;
+								case 'Assemble':
+									const environment = await getEnvironment('Enter the environment (optional) for assembling:');
+									if (environment !== undefined) {
+											command = `cd ./android && ./gradlew assemble${environment} && cd ..`;
+									} else {
+											command = `cd ./android && ./gradlew assemble && cd ..`;
+									}
                 case 'Open APK Folder':
                     command = 'open android/app/build/outputs/apk';
                     break;

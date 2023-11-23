@@ -8,9 +8,9 @@ Android Scripts is an extension for Visual Studio Code that provides helpful com
 
 This extension provides the following commands:
 
-- **Assemble**: Allows assembling the Android project. Users can enter the environment manually or use a saved environment.
+- **Assemble**: Executes the command `./gradlew assemble` or `./gradlew assemble${environment}` to assemble the Android project. Users have the flexibility to enter a specific environment manually or use a saved environment.
 - **Open APK Folder**: Opens the output folder containing APKs of the project in the File Explorer.
-- **Clean Build**: Cleans the Android project. Users can enter the environment manually or use a saved environment.
+- **Clean Build**: Executes the command `./gradlew clean` to clean the Android project. Users can manually enter the environment or use a saved environment.
 
 ## Installation
 
