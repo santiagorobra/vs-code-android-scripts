@@ -1,39 +1,78 @@
 import * as vscode from 'vscode';
 
+let terminal: vscode.Terminal | undefined;
+let savedEnvironment: string | undefined;
+
 export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('android-scripts.chooseCommand', async () => {
-        const selectedOption = await vscode.window.showQuickPick(['Assemble QA', 'Open APK Folder', 'Clean Build'], {
+        if (!terminal) {
+            terminal = vscode.window.createTerminal('Android Scripts');
+        }
+
+        const selectedOption = await vscode.window.showQuickPick(['Assemble', 'Open APK Folder', 'Clean Build'], {
             placeHolder: 'Select a command to execute'
         });
 
         if (selectedOption) {
-            const terminal = vscode.window.createTerminal('Android Scripts');
+            let command = '';
             switch (selectedOption) {
-                case 'Assemble QA':
-                    await runCommand(terminal, 'cd ./android && ./gradlew assembleQa && cd ..');
+                case 'Assemble':
+                    const environmentAssemble = await getEnvironment('Enter the environment for assembling:');
+                    if (environmentAssemble) {
+                        command = `cd ./android && ./gradlew assemble${environmentAssemble} && cd ..`;
+                    }
                     break;
                 case 'Open APK Folder':
-                    await runCommand(terminal, 'open android/app/build/outputs/apk');
+                    command = 'open android/app/build/outputs/apk';
                     break;
                 case 'Clean Build':
-                    await runCommand(terminal, 'cd android && ./gradlew clean && cd ..');
+										command = 'cd android && ./gradlew clean && cd ..';
                     break;
                 default:
                     break;
             }
 
-            terminal.show();
+            if (command) {
+                await runCommand(command);
+                if (!terminal) {
+                    terminal = vscode.window.createTerminal('Android Scripts');
+                }
+                terminal.show();
+            }
         }
     });
 
     context.subscriptions.push(disposable);
 }
 
-async function runCommand(terminal: vscode.Terminal, command: string) {
+async function getEnvironment(prompt: string): Promise<string | undefined> {
+    if (savedEnvironment) {
+        const useSaved = await vscode.window.showQuickPick(['Use Saved', 'Enter Manually'], {
+            placeHolder: `Use saved environment "${savedEnvironment}" or enter a new one:`
+        });
+        if (useSaved === 'Use Saved') {
+            return savedEnvironment;
+        }
+    }
+    const environment = await vscode.window.showInputBox({
+        placeHolder: 'Enter the environment (e.g., dev, prod)',
+        prompt
+    });
+    if (environment) {
+        savedEnvironment = environment;
+    }
+    return environment;
+}
+
+async function runCommand(command: string) {
     return new Promise<void>((resolve, reject) => {
-        terminal.sendText(command);
-        terminal.sendText('echo "Command executed: ' + command + '" && echo "";', true);
-        setTimeout(resolve, 1000);
+        if (terminal) {
+            terminal.sendText(command);
+            terminal.sendText('echo "Command executed: ' + command + '" && echo "";', true);
+            setTimeout(resolve, 1000);
+        } else {
+            reject('Terminal not available.');
+        }
     });
 }
 
