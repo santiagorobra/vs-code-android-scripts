@@ -79,12 +79,14 @@ async function getEnvironment(prompt: string): Promise<string | undefined> {
 
 async function runCommand(command: string) {
   return new Promise<void>((resolve, reject) => {
+    if (!terminal) {
+      terminal = vscode.window.createTerminal("Android Scripts");
+    }
+
     if (terminal) {
+      terminal.show();
       terminal.sendText(command);
-      terminal.sendText(
-        'echo "Command executed: ' + command + '" && echo "";',
-        true
-      );
+      terminal.sendText('echo "Command executed: ' + command + '" && echo "";', true);
       setTimeout(resolve, 1000);
     } else {
       reject("Terminal not available.");

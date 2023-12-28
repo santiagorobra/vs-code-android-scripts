@@ -2,7 +2,7 @@
   "name": "android-scripts",
   "displayName": "android-scripts",
   "description": "Scripts for builds apks or open outputs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "publisher": "Android-scripts",
   "engines": {
     "vscode": "^1.84.0"
